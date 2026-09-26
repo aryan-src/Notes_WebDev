@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="HTML Academy — an interactive website that teaches you HTML with editable examples, live previews and quizzes.">
+  <title>HTML Academy — Learn HTML Interactively</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23e44d26'/%3E%3Ctext x='50' y='72' font-size='56' text-anchor='middle' fill='white' font-family='monospace' font-weight='bold'%3E%26lt;/%26gt;%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="icon-btn" id="menuToggle" type="button" aria-label="Hide navigation pane" aria-controls="sidebar" aria-expanded="true" title="Hide navigation pane">&#9776;</button>
+    <a class="brand" href="#html-basics">
+      <span class="brand-badge">&lt;/&gt;</span>
+      <span class="brand-name">HTML<span class="brand-accent">Academy</span></span>
+    </a>
+    <div class="topbar-actions">
+      <button class="mindmap-nav-btn" id="mindmapNavBtn" type="button" aria-label="Open Interactive Mind Map">
+        <span class="mm-btn-icon">🧠</span>
+        <span class="mm-btn-text">Mind Map</span>
+      </button>
+      <div class="theme-picker appearance-picker" data-appearance-picker="theme">
+        <span class="appearance-label">Theme</span>
+        <button class="appearance-trigger" id="themeSelect" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="themeSelectMenu">
+          <span class="appearance-value" data-select-value>Light</span>
+          <span class="appearance-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="appearance-menu" id="themeSelectMenu" role="listbox" aria-label="Choose a theme" hidden>
+          <button class="appearance-option" type="button" role="option" data-value="light" aria-selected="true"><span>Light</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="dark" aria-selected="false"><span>Dark</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="nordic-frost" aria-selected="false"><span>Nordic Frost</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="warm-paper" aria-selected="false"><span>Warm Paper</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="sage-mint" aria-selected="false"><span>Sage Mint</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="corporate-slate" aria-selected="false"><span>Corporate Slate</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="tokyo-night" aria-selected="false"><span>Tokyo Night</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+
+          <button class="appearance-option" type="button" role="option" data-value="forest-emerald" aria-selected="false"><span>Forest Emerald</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="synthwave" aria-selected="false"><span>Synthwave Dusk</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="monokai-charcoal" aria-selected="false"><span>Monokai Charcoal</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+
+
+          <button class="appearance-option" type="button" role="option" data-value="solarized-light" aria-selected="false"><span>Solarised Light</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="solarized-dark" aria-selected="false"><span>Solarised Dark</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="rose-gold" aria-selected="false"><span>Rose Gold Latte</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+        </div>
+      </div>
+      <div class="theme-picker appearance-picker" data-appearance-picker="font">
+        <span class="appearance-label">Font</span>
+        <button class="appearance-trigger" id="fontSelect" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="fontSelectMenu">
+          <span class="appearance-value" data-select-value>System Default</span>
+          <span class="appearance-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="appearance-menu" id="fontSelectMenu" role="listbox" aria-label="Choose a font style" hidden>
+          <button class="appearance-option" type="button" role="option" data-value="system" aria-selected="true"><span>System Default</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="modern-tech-docs" aria-selected="false"><span>Modern Tech Docs</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="editorial-paperback" aria-selected="false"><span>Editorial Paperback</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="friendly-modern" aria-selected="false"><span>Friendly Modern</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="clean-academic" aria-selected="false"><span>Clean Academic</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="neo-grotesque-studio" aria-selected="false"><span>Neo-Grotesque Studio</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="terminal-developer" aria-selected="false"><span>Terminal Developer</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="warm-editorial-dark" aria-selected="false"><span>Warm Editorial Dark</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="sharp-tech" aria-selected="false"><span>Sharp Tech</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="humanist-scholar" aria-selected="false"><span>Humanist Scholar</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="minimalist-notebook" aria-selected="false"><span>Minimalist Notebook</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+          <button class="appearance-option" type="button" role="option" data-value="high-end-editorial" aria-selected="false"><span>High-End Editorial</span><span class="appearance-check" aria-hidden="true">✓</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mind Map Modal Overlay -->
+  <div class="mindmap-modal" id="mindmapModal" role="dialog" aria-modal="true" aria-labelledby="mindmapModalTitle" hidden>
+    <div class="mindmap-backdrop" id="mindmapBackdrop"></div>
+    
+    <div class="mindmap-container">
+      <!-- Modal Header -->
+      <div class="mindmap-header">
+        <div class="mm-header-brand">
+          <span class="mm-header-icon">🧠</span>
+          <div>
+            <h2 id="mindmapModalTitle" class="mm-modal-title">HTML Knowledge Mind Map</h2>
+            <p class="mm-modal-subtitle">Visual learning & concept retention hub</p>
+          </div>
+        </div>
+        <button class="icon-btn mm-close-btn" id="mindmapCloseBtn" type="button" aria-label="Close Mind Map Modal" title="Close Modal">&times;</button>
+      </div>
+
+      <!-- Modal Body Layout (Sidebar Selector + Main Visualizer) -->
+      <div class="mindmap-body">
+        
+        <!-- Left Topic Selector Sidebar -->
+        <aside class="mindmap-sidebar">
+          <div class="mm-sidebar-header">
+            <h3 class="mm-sidebar-title">Topics</h3>
+            <div class="mm-search-box">
+              <span class="mm-search-icon">🔍</span>
+              <input type="text" id="mindmapSearch" placeholder="Search mind map topics..." aria-label="Search topics">
+            </div>
+            
+            <div class="mm-category-filters" id="mindmapCategoryFilters">
+              <button class="mm-filter-chip active" data-category="all" type="button">All (37)</button>
+              <button class="mm-filter-chip" data-category="Core Basics" type="button">Core</button>
+              <button class="mm-filter-chip" data-category="Styling" type="button">Styling</button>
+              <button class="mm-filter-chip" data-category="Interactivity" type="button">Interactivity</button>
+              <button class="mm-filter-chip" data-category="Media" type="button">Media</button>
+              <button class="mm-filter-chip" data-category="Architecture" type="button">Architecture</button>
+              <button class="mm-filter-chip" data-category="Characters" type="button">Symbols</button>
+            </div>
+          </div>
+
+          <div class="mindmap-topic-grid" id="mindmapTopicGrid">
+            <!-- Dynamic topic cards -->
+          </div>
+        </aside>
+
+        <!-- Right Mind Map Visualizer Area -->
+        <main class="mindmap-visualizer">
+          
+          <!-- Visualizer Header Toolbar -->
+          <div class="mm-visualizer-toolbar">
+            <div class="mm-current-topic-info">
+              <span class="mm-topic-badge" id="mindmapCurrentTopicBadge">Essential</span>
+              <h3 class="mm-topic-title" id="mindmapCurrentTopicTitle">HTML Foundations & Document Structure</h3>
+              <p class="mm-topic-desc" id="mindmapCurrentTopicDesc">Master document hierarchy and foundational tags</p>
+            </div>
+
+            <div class="mm-toolbar-actions">
+              <div class="mm-zoom-controls">
+                <button class="mm-tool-btn" id="mmZoomOut" type="button" title="Zoom Out">−</button>
+                <span class="mm-zoom-level" id="mmZoomLevel">100%</span>
+                <button class="mm-tool-btn" id="mmZoomIn" type="button" title="Zoom In">+</button>
+                <button class="mm-tool-btn" id="mmZoomReset" type="button" title="Reset View">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Canvas Viewport -->
+          <div class="mindmap-viewport" id="mindmapViewport">
+            <div class="mindmap-canvas-content" id="mindmapCanvasContent">
+              <!-- Rendered Mind Map Hierarchy -->
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+
+    <aside class="sidebar" id="sidebar" aria-label="Course navigation">
+      <nav aria-label="HTML Academy course sections">
+        <ul class="nav-list" id="navList"></ul>
+      </nav>
+
+      <div class="progress-card" id="progressCard">
+        <div class="progress-text">
+          <span>Your progress</span>
+          <strong id="progressLabel">0 / 1</strong>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div>Notes adapted from
+          <a class="sidebar-source-link" href="https://www.w3schools.com/html/html_basic.asp" target="_blank" rel="noopener">W3Schools &middot; HTML Basic</a>
+        </div>
+        <div class="sidebar-curator">Curated by Aryan.</div>
+        <div class="sidebar-github">GitHub: <a href="https://github.com/aryan-src" target="_blank" rel="noopener">aryan-src</a></div>
+      </div>
+    </aside>
+
+    <main class="content" id="content"></main>
+  </div>
+
+  <script src="js/lessons.js"></script>
+  <script src="js/mindmap-data.js"></script>
+  <script src="js/mindmap.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
