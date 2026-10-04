@@ -71,9 +71,10 @@
     practiceChallengeBtn = document.getElementById('mmPracticeChallengeBtn');
     knowledgeQuizBtn = document.getElementById('mmKnowledgeQuizBtn');
     sidebarOverlayEl = document.getElementById('mmSidebarOverlay');
+    inspectorOverlayEl = document.getElementById('mmInspectorOverlay');
   }
 
-  let reloadSandboxBtn, practiceChallengeBtn, knowledgeQuizBtn, sidebarOverlayEl;
+  let reloadSandboxBtn, practiceChallengeBtn, knowledgeQuizBtn, sidebarOverlayEl, inspectorOverlayEl;
 
   function bindEvents() {
     // Open Trigger from Topbar Nav Button
@@ -94,6 +95,13 @@
       sidebarOverlayEl.addEventListener('click', function () {
         if (mindmapBodyEl) mindmapBodyEl.classList.remove('sidebar-mobile-open');
         sidebarOverlayEl.classList.remove('active');
+      });
+    }
+
+    // Inspector Overlay Backdrop Click
+    if (inspectorOverlayEl) {
+      inspectorOverlayEl.addEventListener('click', function () {
+        closeInspector();
       });
     }
 
@@ -605,13 +613,12 @@
 
     renderSandboxPreview(snippet);
 
-    // Show Drawer with smooth transition
-    inspectorDrawer.hidden = false;
-    inspectorDrawer.classList.add('open');
-
-    // On mobile, scroll drawer smoothly into view if needed
-    if (isMobile()) {
-      inspectorDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Show Drawer & Overlay with smooth transition
+    if (inspectorOverlayEl) {
+      inspectorOverlayEl.classList.add('active');
+    }
+    if (inspectorDrawer) {
+      inspectorDrawer.classList.add('open');
     }
   }
 
@@ -622,9 +629,11 @@
         el.classList.remove('is-active-node');
       });
     }
+    if (inspectorOverlayEl) {
+      inspectorOverlayEl.classList.remove('active');
+    }
     if (inspectorDrawer) {
       inspectorDrawer.classList.remove('open');
-      inspectorDrawer.hidden = true;
     }
   }
 

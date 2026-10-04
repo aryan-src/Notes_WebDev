@@ -2670,7 +2670,15 @@ html[data-theme="solarized-light"] .result-label {
     transform: translateX(2px);
   }
 
-  /* Inspector Drawer Base Styles */
+  /* Inspector Drawer & Overlay Base Styles */
+  .mm-inspector-overlay {
+    display: none;
+  }
+
+  .mm-drawer-handle-bar {
+    display: none;
+  }
+
   .mm-inspector-drawer {
     position: absolute;
     bottom: 20px;
@@ -2689,22 +2697,19 @@ html[data-theme="solarized-light"] .result-label {
     z-index: 100;
     overflow-y: auto;
     overscroll-behavior: contain;
-    animation: mmDrawerSlideDesktop .22s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(16px) scale(0.96);
+    pointer-events: none;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, visibility 0.28s;
+    will-change: transform, opacity;
   }
 
-  .mm-inspector-drawer[hidden] {
-    display: none !important;
-  }
-
-  @keyframes mmDrawerSlideDesktop {
-    from {
-      opacity: 0;
-      transform: translateY(12px) scale(0.97);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+  .mm-inspector-drawer.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
   }
 
   .mm-inspector-header {
@@ -3406,7 +3411,46 @@ html[data-theme="solarized-light"] .result-label {
     height: 28px;
   }
 
-  /* Mobile Inspector Drawer: Slide-Up Bottom Sheet */
+  /* Mobile Inspector Backdrop Overlay */
+  .mm-inspector-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.52);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.32s ease, visibility 0.32s;
+    will-change: opacity;
+  }
+
+  .mm-inspector-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Mobile Grab Handle Bar */
+  .mm-drawer-handle-bar {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 8px;
+    margin-top: -4px;
+    cursor: grab;
+  }
+
+  .mm-drawer-handle {
+    width: 36px;
+    height: 4.5px;
+    background: var(--border);
+    border-radius: 999px;
+    transition: background 0.2s;
+  }
+
+  /* Mobile Inspector Drawer: Butter-Smooth Slide-Up Bottom Sheet */
   .mm-inspector-drawer {
     position: fixed;
     bottom: 0;
@@ -3414,24 +3458,27 @@ html[data-theme="solarized-light"] .result-label {
     right: 0;
     width: 100%;
     max-width: 100%;
-    max-height: 80vh;
-    max-height: 80dvh;
-    border-radius: 20px 20px 0 0;
+    max-height: 82vh;
+    max-height: 82dvh;
+    border-radius: 24px 24px 0 0;
     border: none;
     border-top: 1px solid var(--border);
-    box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.3);
-    padding: 16px 16px calc(18px + env(safe-area-inset-bottom, 16px));
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.35);
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 16px));
     z-index: 1050;
-    animation: mmDrawerSlideMobile .26s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(100%);
+    pointer-events: none;
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.25s ease, visibility 0.38s;
+    will-change: transform, opacity;
   }
 
-  @keyframes mmDrawerSlideMobile {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
+  .mm-inspector-drawer.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 }
 
