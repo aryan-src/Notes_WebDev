@@ -19,8 +19,7 @@
   // DOM Elements cache
   let modal, backdrop, searchInput, topicGrid, mindmapViewport, canvasContent;
   let topicTitleEl, topicBadgeEl, topicDescEl, sidebarToggleBtn, toggleAllBtn;
-  let mindmapBodyEl, mindmapSidebarEl;
-  let inspectorDrawer, drawerIcon, drawerBadge, drawerTitle, drawerCategory, drawerDesc, drawerCode, drawerSnippetBox, drawerSandboxBox, sandboxTarget, copySnippetBtn, openPlaygroundBtn, drawerCloseBtn;
+  let mindmapBodyEl, mindmapSidebarEl, sidebarOverlayEl;
   let activeNodeId = null;
 
   // Currently-rendered topic, kept around so we can redraw connector arrows
@@ -52,29 +51,8 @@
     toggleAllBtn = document.getElementById('mmToggleAll');
     mindmapBodyEl = document.querySelector('.mindmap-body');
     mindmapSidebarEl = document.getElementById('mindmapSidebar');
-
-    // Inspector Drawer DOM elements
-    inspectorDrawer = document.getElementById('mmInspectorDrawer');
-    drawerIcon = document.getElementById('mmDrawerIcon');
-    drawerBadge = document.getElementById('mmDrawerBadge');
-    drawerTitle = document.getElementById('mmDrawerTitle');
-    drawerCategory = document.getElementById('mmDrawerCategory');
-    drawerDesc = document.getElementById('mmDrawerDesc');
-    drawerCode = document.getElementById('mmDrawerCode');
-    drawerSnippetBox = document.getElementById('mmDrawerSnippetContainer');
-    drawerSandboxBox = document.getElementById('mmDrawerSandboxContainer');
-    sandboxTarget = document.getElementById('mmSandboxTarget');
-    copySnippetBtn = document.getElementById('mmCopySnippetBtn');
-    openPlaygroundBtn = document.getElementById('mmOpenPlaygroundBtn');
-    drawerCloseBtn = document.getElementById('mmDrawerClose');
-    reloadSandboxBtn = document.getElementById('mmReloadSandboxBtn');
-    practiceChallengeBtn = document.getElementById('mmPracticeChallengeBtn');
-    knowledgeQuizBtn = document.getElementById('mmKnowledgeQuizBtn');
     sidebarOverlayEl = document.getElementById('mmSidebarOverlay');
-    inspectorOverlayEl = document.getElementById('mmInspectorOverlay');
   }
-
-  let reloadSandboxBtn, practiceChallengeBtn, knowledgeQuizBtn, sidebarOverlayEl, inspectorOverlayEl;
 
   function bindEvents() {
     // Open Trigger from Topbar Nav Button
@@ -98,46 +76,12 @@
       });
     }
 
-    // Inspector Overlay Backdrop Click
-    if (inspectorOverlayEl) {
-      inspectorOverlayEl.addEventListener('click', function () {
-        closeInspector();
-      });
-    }
-
-    // Inspector Drawer Events
-    if (drawerCloseBtn) {
-      drawerCloseBtn.addEventListener('click', closeInspector);
-    }
-
-    if (copySnippetBtn) {
-      copySnippetBtn.addEventListener('click', handleCopySnippet);
-    }
-
-    if (openPlaygroundBtn) {
-      openPlaygroundBtn.addEventListener('click', handleOpenPlayground);
-    }
-
-    if (reloadSandboxBtn) {
-      reloadSandboxBtn.addEventListener('click', handleReloadSandbox);
-    }
-
-    if (practiceChallengeBtn) {
-      practiceChallengeBtn.addEventListener('click', handlePracticeChallenge);
-    }
-
-    if (knowledgeQuizBtn) {
-      knowledgeQuizBtn.addEventListener('click', handleKnowledgeQuiz);
-    }
-
-    // ESC Key to close modal or inspector
+    // ESC Key to close modal or sidebar
     window.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && modal && !modal.hidden) {
         if (mindmapBodyEl && mindmapBodyEl.classList.contains('sidebar-mobile-open')) {
           mindmapBodyEl.classList.remove('sidebar-mobile-open');
           if (sidebarOverlayEl) sidebarOverlayEl.classList.remove('active');
-        } else if (inspectorDrawer && !inspectorDrawer.hidden) {
-          closeInspector();
         } else {
           closeMindMapModal();
         }
@@ -228,7 +172,6 @@
 
   function openMindMapModal(topicId) {
     if (!modal) return;
-    closeInspector();
     if (topicId && typeof MINDMAP_DATA !== 'undefined') {
       const exists = MINDMAP_DATA.some(t => t.id === topicId);
       if (exists) {
@@ -258,7 +201,6 @@
     document.body.style.overflow = '';
     if (mindmapBodyEl) mindmapBodyEl.classList.remove('sidebar-mobile-open');
     if (sidebarOverlayEl) sidebarOverlayEl.classList.remove('active');
-    closeInspector();
   }
 
   // Expose global helper to launch mind map directly for any topic ID
@@ -333,7 +275,6 @@
         if (tid && tid !== currentTopicId) {
           currentTopicId = tid;
           collapsedNodeIds.clear();
-          closeInspector();
           renderTopicCards();
           renderCurrentMindMap();
           if (!isMobile()) fitToView();
@@ -379,7 +320,6 @@
               <span class="mm-node-title">${escapeHTML(rootData.label)}</span>
               ${rootData.summary ? `<span class="mm-node-sub">${escapeHTML(rootData.summary)}</span>` : ''}
             </div>
-            <span class="mm-node-inspect-cue" title="Tap to Inspect">🔍</span>
           </div>
         </div>
 
@@ -441,7 +381,6 @@
                       </div>
                       <span class="mm-node-sub ${subNode.isCode ? 'mm-node-code-text' : ''}">${escapeHTML(subNode.summary)}</span>
                     </div>
-                    <span class="mm-node-chevron">›</span>
                   </div>
                 </div>
               `;
@@ -490,261 +429,6 @@
     toggleAllBtn.textContent = allCollapsed ? 'Expand All' : 'Collapse All';
   }
 
-  /* ---------- Node Selection & Inspector Drawer Logic ---------- */
-  function findNodeInTopic(topic, nodeId) {
-    if (!topic || !topic.root) return null;
-    if (topic.root.id === nodeId) {
-      return { node: topic.root, branch: null, isRoot: true };
-    }
-    for (const branch of (topic.root.children || [])) {
-      if (branch.id === nodeId) {
-        return { node: branch, branch: branch, isBranch: true };
-      }
-      for (const sub of (branch.children || [])) {
-        if (sub.id === nodeId) {
-          return { node: sub, branch: branch, isSub: true };
-        }
-      }
-    }
-    return null;
-  }
-
-  function generateSnippetForNode(node, branch, topic) {
-    // Check if summary already contains realistic code
-    const summary = node.summary || '';
-    if (node.isCode || summary.includes('<') && summary.includes('>')) {
-      return summary;
-    }
-
-    const label = node.label || '';
-    if (label.startsWith('<') && label.endsWith('>')) {
-      // It's an HTML tag like <h1>, <p>, <a>, <img>, etc.
-      const tagMatch = label.match(/<([a-zA-Z0-9!]+)/);
-      const tagName = tagMatch ? tagMatch[1].toLowerCase() : 'div';
-
-      if (tagName === '!doctype') {
-        return '<!DOCTYPE html>\n<html lang="en">\n  <head>\n    <title>Hello World</title>\n  </head>\n  <body>\n    <h1>Welcome to HTML Academy</h1>\n  </body>\n</html>';
-      }
-      if (tagName === 'a') {
-        return '<a href="https://example.com" target="_blank">\n  Visit Example Website\n</a>';
-      }
-      if (tagName === 'img') {
-        return '<img src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400" alt="Vibrant abstract gradient" width="300">';
-      }
-      if (tagName === 'input') {
-        return '<label for="uname">Username:</label>\n<input type="text" id="uname" name="name" placeholder="Enter your name">';
-      }
-      if (tagName === 'button') {
-        return '<button type="button" class="btn">\n  Click Me 🚀\n</button>';
-      }
-      if (tagName === 'table') {
-        return '<table>\n  <thead>\n    <tr><th>Skill</th><th>Status</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>HTML</td><td>Mastered</td></tr>\n  </tbody>\n</table>';
-      }
-      if (tagName === 'ul' || tagName === 'ol') {
-        return `<ul>\n  <li>HTML5 Semantics</li>\n  <li>Modern Web Standards</li>\n  <li>Interactive Canvas</li>\n</ul>`;
-      }
-      if (tagName.startsWith('h') && tagName.length === 2) {
-        return `<${tagName}>${summary.length > 5 && summary.length < 50 ? summary : 'Heading Content'}</${tagName}>`;
-      }
-
-      return `<${tagName}>\n  ${summary || 'Interactive Element Content'}\n</${tagName}>`;
-    }
-
-    // Default code fallback based on topic
-    return `<!-- ${escapeHTML(label)} -->\n<div class="feature-card">\n  <h3>${escapeHTML(label)}</h3>\n  <p>${escapeHTML(summary || 'Core HTML Academy Concept')}</p>\n</div>`;
-  }
-
-  function renderSandboxPreview(snippet) {
-    if (!sandboxTarget) return;
-    sandboxTarget.innerHTML = '';
-
-    if (!snippet) {
-      if (drawerSandboxBox) drawerSandboxBox.hidden = true;
-      return;
-    }
-
-    if (drawerSandboxBox) drawerSandboxBox.hidden = false;
-
-    // Create an isolated sandbox shadow DOM or styling container
-    const previewContainer = document.createElement('div');
-    previewContainer.className = 'mm-sandbox-render-area';
-    previewContainer.innerHTML = snippet;
-
-    // Prevent navigation from sandbox links
-    previewContainer.querySelectorAll('a').forEach(a => {
-      a.setAttribute('target', '_blank');
-      a.setAttribute('rel', 'noopener noreferrer');
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-      });
-    });
-
-    sandboxTarget.appendChild(previewContainer);
-  }
-
-  function inspectNode(nodeId) {
-    if (!renderedTopic) return;
-    const match = findNodeInTopic(renderedTopic, nodeId);
-    if (!match) return;
-
-    const { node, branch, isRoot } = match;
-    activeNodeId = nodeId;
-
-    // Highlight active node in DOM
-    if (canvasContent) {
-      canvasContent.querySelectorAll('.mm-node').forEach(el => {
-        el.classList.toggle('is-active-node', el.dataset.nodeId === nodeId);
-      });
-    }
-
-    if (!inspectorDrawer) return;
-
-    // Populate Drawer Header
-    if (drawerIcon) drawerIcon.textContent = node.icon || (isRoot ? '🧠' : '⚡');
-    if (drawerTitle) drawerTitle.textContent = node.label || 'Node Inspector';
-    if (drawerBadge) drawerBadge.textContent = node.badge || (isRoot ? 'Root Concept' : (branch ? 'Branch Concept' : 'Element'));
-    if (drawerCategory) drawerCategory.textContent = branch ? branch.label : renderedTopic.title;
-    if (drawerDesc) drawerDesc.textContent = node.summary || renderedTopic.description || 'Explore the interactive properties of this concept in HTML Academy.';
-
-    // Populate Snippet & Sandbox
-    const snippet = generateSnippetForNode(node, branch, renderedTopic);
-    if (drawerCode) {
-      drawerCode.textContent = snippet;
-    }
-
-    renderSandboxPreview(snippet);
-
-    // Show Drawer & Overlay with smooth transition
-    if (inspectorOverlayEl) {
-      inspectorOverlayEl.hidden = false;
-      requestAnimationFrame(() => {
-        inspectorOverlayEl.classList.add('active');
-      });
-    }
-    if (inspectorDrawer) {
-      inspectorDrawer.hidden = false;
-      requestAnimationFrame(() => {
-        inspectorDrawer.classList.add('open');
-      });
-    }
-  }
-
-  function closeInspector() {
-    activeNodeId = null;
-    if (canvasContent) {
-      canvasContent.querySelectorAll('.mm-node').forEach(el => {
-        el.classList.remove('is-active-node');
-      });
-    }
-    if (inspectorOverlayEl) {
-      inspectorOverlayEl.classList.remove('active');
-      setTimeout(() => {
-        if (inspectorOverlayEl && !inspectorOverlayEl.classList.contains('active')) {
-          inspectorOverlayEl.hidden = true;
-        }
-      }, 300);
-    }
-    if (inspectorDrawer) {
-      inspectorDrawer.classList.remove('open');
-      setTimeout(() => {
-        if (inspectorDrawer && !inspectorDrawer.classList.contains('open')) {
-          inspectorDrawer.hidden = true;
-        }
-      }, 380);
-    }
-  }
-
-  function handleCopySnippet() {
-    if (!drawerCode || !drawerCode.textContent) return;
-    const textToCopy = drawerCode.textContent;
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(textToCopy).then(showCopiedState);
-    } else {
-      const ta = document.createElement('textarea');
-      ta.value = textToCopy;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showCopiedState();
-    }
-  }
-
-  function showCopiedState() {
-    if (!copySnippetBtn) return;
-    const originalText = copySnippetBtn.textContent;
-    copySnippetBtn.textContent = 'Copied! ✓';
-    copySnippetBtn.classList.add('copied');
-    setTimeout(() => {
-      copySnippetBtn.textContent = originalText;
-      copySnippetBtn.classList.remove('copied');
-    }, 1800);
-  }
-
-  function handleOpenPlayground() {
-    if (!renderedTopic) return;
-    const targetTopicId = renderedTopic.id;
-    closeMindMapModal();
-
-    // Trigger router navigation to the corresponding lesson
-    if (window.location.hash !== '#' + targetTopicId) {
-      window.location.hash = '#' + targetTopicId;
-    } else if (typeof window.route === 'function') {
-      window.route();
-    }
-  }
-
-  function handleReloadSandbox() {
-    if (!drawerCode || !drawerCode.textContent) return;
-    renderSandboxPreview(drawerCode.textContent);
-    if (reloadSandboxBtn) {
-      const orig = reloadSandboxBtn.textContent;
-      reloadSandboxBtn.textContent = '✓ Refreshed';
-      setTimeout(() => {
-        reloadSandboxBtn.textContent = orig;
-      }, 1400);
-    }
-  }
-
-  function handlePracticeChallenge() {
-    if (!renderedTopic) return;
-    const targetTopicId = renderedTopic.id;
-    closeMindMapModal();
-
-    if (window.location.hash !== '#' + targetTopicId) {
-      window.location.hash = '#' + targetTopicId;
-    } else if (typeof window.route === 'function') {
-      window.route();
-    }
-
-    setTimeout(() => {
-      const editorEl = document.querySelector('.tryit, .editor-wrap, #editorWrap');
-      if (editorEl) {
-        editorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 180);
-  }
-
-  function handleKnowledgeQuiz() {
-    if (!renderedTopic) return;
-    const targetTopicId = renderedTopic.id;
-    closeMindMapModal();
-
-    if (window.location.hash !== '#' + targetTopicId) {
-      window.location.hash = '#' + targetTopicId;
-    } else if (typeof window.route === 'function') {
-      window.route();
-    }
-
-    setTimeout(() => {
-      const quizEl = document.querySelector('.quiz, [data-qi]');
-      if (quizEl) {
-        quizEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 180);
-  }
-
   function bindNodeEvents(topic) {
     if (!canvasContent) return;
 
@@ -760,7 +444,7 @@
       });
     });
 
-    // 2. Node click handlers to trigger Inspector Drawer
+    // 2. Node click handlers: toggle collapse on branch, toggle visual focus without popup
     const allNodes = canvasContent.querySelectorAll('.mm-node[data-node-id]');
     allNodes.forEach(nodeEl => {
       nodeEl.addEventListener('click', function (e) {
@@ -769,9 +453,16 @@
         e.stopPropagation();
 
         const nodeId = this.dataset.nodeId;
-        if (nodeId) {
-          inspectNode(nodeId);
+        if (this.classList.contains('mm-node-branch') && nodeId) {
+          toggleBranchCollapse(nodeId);
+          return;
         }
+
+        // Toggle active selection state
+        activeNodeId = (activeNodeId === nodeId) ? null : nodeId;
+        canvasContent.querySelectorAll('.mm-node').forEach(el => {
+          el.classList.toggle('is-active-node', el.dataset.nodeId === activeNodeId);
+        });
       });
 
       // Node Hover -> Highlight SVG Connectors on Desktop
@@ -1002,7 +693,7 @@
   function handleMouseDown(e) {
     if (isMobile()) return;
     if (e.button !== 0) return; // Left click only
-    if (e.target.closest('.mm-collapse-btn') || e.target.closest('.mm-node') || e.target.closest('.mm-inspector-drawer')) return;
+    if (e.target.closest('.mm-collapse-btn') || e.target.closest('.mm-node')) return;
 
     isDragging = true;
     hasDragged = false;
