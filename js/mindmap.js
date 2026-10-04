@@ -228,6 +228,7 @@
 
   function openMindMapModal(topicId) {
     if (!modal) return;
+    closeInspector();
     if (topicId && typeof MINDMAP_DATA !== 'undefined') {
       const exists = MINDMAP_DATA.some(t => t.id === topicId);
       if (exists) {
@@ -615,10 +616,16 @@
 
     // Show Drawer & Overlay with smooth transition
     if (inspectorOverlayEl) {
-      inspectorOverlayEl.classList.add('active');
+      inspectorOverlayEl.hidden = false;
+      requestAnimationFrame(() => {
+        inspectorOverlayEl.classList.add('active');
+      });
     }
     if (inspectorDrawer) {
-      inspectorDrawer.classList.add('open');
+      inspectorDrawer.hidden = false;
+      requestAnimationFrame(() => {
+        inspectorDrawer.classList.add('open');
+      });
     }
   }
 
@@ -631,9 +638,19 @@
     }
     if (inspectorOverlayEl) {
       inspectorOverlayEl.classList.remove('active');
+      setTimeout(() => {
+        if (inspectorOverlayEl && !inspectorOverlayEl.classList.contains('active')) {
+          inspectorOverlayEl.hidden = true;
+        }
+      }, 300);
     }
     if (inspectorDrawer) {
       inspectorDrawer.classList.remove('open');
+      setTimeout(() => {
+        if (inspectorDrawer && !inspectorDrawer.classList.contains('open')) {
+          inspectorDrawer.hidden = true;
+        }
+      }, 380);
     }
   }
 

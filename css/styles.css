@@ -2671,6 +2671,11 @@ html[data-theme="solarized-light"] .result-label {
   }
 
   /* Inspector Drawer & Overlay Base Styles */
+  .mm-inspector-overlay[hidden],
+  .mm-inspector-drawer[hidden] {
+    display: none !important;
+  }
+
   .mm-inspector-overlay {
     display: none;
   }
